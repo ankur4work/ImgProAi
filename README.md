@@ -18,12 +18,12 @@ functionality and the pricing model are carried over unchanged.
 | Value | Status |
 |---|---|
 | `SHOPIFY_API_KEY` / `SHOPIFY_API_SECRET` | ✅ set (ImgPro app credentials) |
-| `SHOPIFY_APP_URL` / `application_url` | ✅ `https://imgpro.onkra.online`, confirmed |
+| `SHOPIFY_APP_URL` / `application_url` | ✅ `https://imgproai.onkra.online`, confirmed |
 | `client_id` in `shopify.app.toml` | ✅ set |
 | `OPENAI_API_KEY` | ⚠️ **not yet set for ImgPro.** Must be verified with a real completion **and** a real vision call against a Shopify CDN URL — an unfunded key authenticates but fails every caption (see below) |
 | `DATABASE_URL` | ✅ set in Coolify to the app's own new Postgres resource. The app cannot start without it: `PrismaSessionStorage` checks for the `Session` table at boot and the process exits if it can't reach the database |
 | `SHOPIFY_APP_HANDLE` | ⚠️ set to the likely value `imgpro`, **not verified.** Confirm against a real install URL — see below |
-| `SUPPORT_EMAIL` | ⚠️ unset; `/privacy` falls back to a personal address |
+| `SUPPORT_EMAIL` | ✅ set in Coolify to `admin@swiftcart.live` (the shared support address the sibling apps use) |
 
 `DATABASE_URL` must point at a **new** Postgres database. Do not reuse
 PixelPro Max's: its `Session` rows hold access tokens issued to a different

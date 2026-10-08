@@ -1,21 +1,18 @@
 # ImgPro — deployment
 
-Deployed to Coolify (`coolify.solnix.store`, VPS `173.212.233.194`) on
-2026-10-08. Target URL **https://imgpro.onkra.online**.
+Live at **https://imgproai.onkra.online** on Coolify (`coolify.solnix.store`,
+VPS `173.212.233.194`). Deployed 2026-10-08.
 
-> **The DNS record does not exist yet.** `imgpro.onkra.online` does not resolve
-> and `onkra.online` has no wildcard, so the public URL is unreachable and
-> Let's Encrypt cannot issue a certificate. The container itself is built,
-> migrated and healthy — verified by overriding DNS client-side:
->
-> ```bash
-> curl -k --resolve imgpro.onkra.online:443:173.212.233.194 \
->   https://imgpro.onkra.online/healthz     # -> 200 "ok"
-> ```
->
-> Add an **A record `imgpro` → `173.212.233.194`** in the `onkra.online` zone.
-> Traefik requests the cert automatically once the name resolves; no redeploy
-> needed.
+DNS is a single **A record `imgproai` → `173.212.233.194`** in the
+`onkra.online` zone (Namecheap BasicDNS, `dns1`/`dns2.registrar-servers.com`).
+There is **no wildcard** on the zone, so every app here needs its own record.
+
+> The host is `imgproai`, not `imgpro` — it matches the GitHub repo name
+> (`ImgProAi`). The app was initially configured for `imgpro.onkra.online`; when
+> the DNS record turned out to be `imgproai`, the app was moved to the existing
+> record rather than a second record being added. If you ever see
+> `imgpro.onkra.online` referenced anywhere, it is stale: that name does not
+> resolve.
 
 ## Coolify resources
 
@@ -75,26 +72,25 @@ stored on the database resource in Coolify. None of these live in the repo.
 
 These are not deployable via the Coolify API and remain manual:
 
-1. **Add the DNS A record** — see the box at the top. Nothing public works
-   until `imgpro.onkra.online` resolves to `173.212.233.194`.
-2. **Set `OPENAI_API_KEY`** in Coolify — currently unset, so AI alt text falls
+1. **Set `OPENAI_API_KEY`** in Coolify — currently unset, so AI alt text falls
    back to `"<product title> - product image"` for every image. Verify the key
    with a real completion, not an auth check: an unfunded key authenticates but
    returns `429 insufficient_quota` on every call (see README).
-3. **Push Shopify app config** — `shopify.app.toml` (URLs, scopes, webhook
+2. **Push Shopify app config** — `shopify.app.toml` (URLs, scopes, webhook
    subscriptions incl. the mandatory compliance webhook) only takes effect once
    pushed to Shopify: `shopify app deploy --allow-updates` with
    `SHOPIFY_APP_AUTOMATION_TOKEN` set. Until then the registered webhooks /
    redirect URLs are whatever the Dev Dashboard already has.
-4. **Create the Managed Pricing plans** in the Dev Dashboard — `Free`,
+3. **Create the Managed Pricing plans** in the Dev Dashboard — `Free`,
    `Starter`, `Growth`, `Pro` (+ `… Annual`), names matching
    `app/plans.server.js` byte-for-byte. **The Free plan is mandatory** or a
    reviewer on a dev store hits an impassable pricing wall.
-5. **Confirm `SHOPIFY_APP_HANDLE`** — set to the assumed `imgpro`. Shopify
+4. **Confirm `SHOPIFY_APP_HANDLE`** — set to the assumed `imgpro`. Shopify
    appends a numeric suffix on a name collision (previous builds became
    `optipix-3` and `imageboost-seo-1`), so verify against a real install URL
    (`/store/<store>/apps/<handle>/…`) and update the Coolify env var if it
-   differs. A wrong handle 404s every pricing CTA.
-6. **Rotate `SHOPIFY_API_SECRET`** — it was shared in plaintext during setup,
+   differs. A wrong handle 404s every pricing CTA. Note this is the *app
+   handle*, which is independent of the `imgproai` DNS host.
+5. **Rotate `SHOPIFY_API_SECRET`** — it was shared in plaintext during setup,
    and see the build-ARG note above. Rotate in the Dev Dashboard and update the
    Coolify env var.
