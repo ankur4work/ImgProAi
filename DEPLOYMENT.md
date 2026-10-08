@@ -41,12 +41,47 @@ There is **no wildcard** on the zone, so every app here needs its own record.
   resource's **internal** hostname (the container UUID above) over Coolify's
   Docker network. It is not reachable from outside the host.
 
+## Shopify app
+
+| | |
+|---|---|
+| Org | SDLC LIMITED (`232511680`) |
+| App | "ImgPro Ai" (`433012834305`), client_id `c25c46bf…` |
+| Handle | **`imgpro-ai`** |
+| Active version | `imgpro-ai-4` |
+
+Config was pushed with `shopify app deploy --allow-updates` and is the **active**
+version — URLs, scopes and all four webhook subscriptions including the
+mandatory compliance webhook.
+
+> **Two name traps here, both already hit once.**
+>
+> `name` in `shopify.app.toml` must match the Dev Dashboard app name
+> (`ImgPro Ai`). It is not the in-app brand — that is "ImgPro", set in
+> `app/components/ui.jsx`. If the two disagree, every `shopify app deploy`
+> silently renames the Dashboard app.
+>
+> The **handle is `imgpro-ai`**, derived by Shopify from the app name at
+> creation and never changed since. It is unrelated to the `imgproai` DNS host
+> and to this repo's name. Read it with `shopify app versions list`: Shopify
+> tags versions `<handle>-<n>`. But note a push whose toml `name` disagrees with
+> the Dashboard gets tagged from the *toml* name — an early push here with
+> `name = "ImgPro"` produced the tag `imgpro-2`, which reads exactly like a
+> handle of `imgpro` and is how a wrong `SHOPIFY_APP_HANDLE` gets adopted.
+
+Releasing a version **overwrites whatever was active**, including changes made
+by hand in the Dashboard. That happened once during setup: a Dashboard release
+(`imgpro-ai-3`) landed after the first CLI push and deactivated it, leaving the
+compliance webhook unregistered until `imgpro-ai-4` was pushed. If someone edits
+the app in the Dashboard, re-push from the repo or the two drift.
+
 ## Secrets (NOT in git)
 
 Set as environment variables on the `imgpro` application in Coolify:
 `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`, `SHOPIFY_APP_URL`, `SCOPES`,
-`SHOPIFY_APP_HANDLE`, `DATABASE_URL`, `SUPPORT_EMAIL`. The Postgres password is
-stored on the database resource in Coolify. None of these live in the repo.
+`SHOPIFY_APP_HANDLE`, `DATABASE_URL`, `SUPPORT_EMAIL`, `OPENAI_API_KEY`. The
+Postgres password is stored on the database resource in Coolify. None of these
+live in the repo.
 
 > **Coolify injects every env var as a Docker build `ARG`**, regardless of the
 > runtime/build-time flag — the first deploy log shows `ARG
@@ -72,34 +107,32 @@ client-side overrides.
 | `GET /` and `/privacy` | ✅ 200, ImgPro branding, zero "PixelPro" strings, no stale `imgpro.` host |
 | Theme shipped | ✅ `/assets/root-sFmkb1DU.css` (20.8 KB) serves indigo `#4F46E5`, `--ip-sh-1`, `--ip-r: 12px`; no teal `#0D9488` |
 | `/app`, `/auth/login` | ✅ 410 without a Shopify session — identical to the working sibling app, this is the framework's response to direct non-embedded access |
+| `/privacy` content | ✅ shows `admin@swiftcart.live` and no fallback address; discloses both OpenAI and Google PageSpeed, as the App Store requires |
+| Shopify config | ✅ `imgpro-ai-4` active: URLs, scopes, 4 webhook subs incl. compliance |
+| `OPENAI_API_KEY` | ✅ verified with a real `gpt-4o-mini` completion **and** a real vision call (correctly described a test image) — not an auth check, so a `429 insufficient_quota` key would have been caught |
 
-Not yet exercised, because they need a real store session and the two pending
-secrets: the five embedded feature pages (dashboard, product optimization, alt
-text, page-speed reports, billing) and the webhook endpoints.
+Not yet exercised, because they need a real store session: the five embedded
+feature pages (dashboard, product optimization, alt text, page-speed reports,
+billing) and the webhook endpoints. Install the app on a dev store to drive
+those — and set `DEV_PLAN_OVERRIDE`, since dev stores cannot approve paid
+managed-pricing plans.
 
-## Still required before the app works end to end
+## Still required
 
-These are not deployable via the Coolify API and remain manual:
-
-1. **Set `OPENAI_API_KEY`** in Coolify — currently unset, so AI alt text falls
-   back to `"<product title> - product image"` for every image. Verify the key
-   with a real completion, not an auth check: an unfunded key authenticates but
-   returns `429 insufficient_quota` on every call (see README).
-2. **Push Shopify app config** — `shopify.app.toml` (URLs, scopes, webhook
-   subscriptions incl. the mandatory compliance webhook) only takes effect once
-   pushed to Shopify: `shopify app deploy --allow-updates` with
-   `SHOPIFY_APP_AUTOMATION_TOKEN` set. Until then the registered webhooks /
-   redirect URLs are whatever the Dev Dashboard already has.
-3. **Create the Managed Pricing plans** in the Dev Dashboard — `Free`,
+1. **Create the Managed Pricing plans** in the Dev Dashboard — `Free`,
    `Starter`, `Growth`, `Pro` (+ `… Annual`), names matching
-   `app/plans.server.js` byte-for-byte. **The Free plan is mandatory** or a
-   reviewer on a dev store hits an impassable pricing wall.
-4. **Confirm `SHOPIFY_APP_HANDLE`** — set to the assumed `imgpro`. Shopify
-   appends a numeric suffix on a name collision (previous builds became
-   `optipix-3` and `imageboost-seo-1`), so verify against a real install URL
-   (`/store/<store>/apps/<handle>/…`) and update the Coolify env var if it
-   differs. A wrong handle 404s every pricing CTA. Note this is the *app
-   handle*, which is independent of the `imgproai` DNS host.
-5. **Rotate `SHOPIFY_API_SECRET`** — it was shared in plaintext during setup,
+   `app/plans.server.js` byte-for-byte. **The Free plan is mandatory**:
+   `app/routes/app.jsx` gates the whole app on `hasActivePlan`, so without a
+   Free plan a reviewer on a development store sees only a pricing wall they
+   cannot get past — an automatic rejection. This is the one remaining blocker
+   to installing the app and exercising the feature pages.
+2. **Install on a dev store and drive the five feature pages** — nothing below
+   the auth boundary has been exercised yet. Set `DEV_PLAN_OVERRIDE`, since dev
+   stores cannot approve paid managed-pricing plans.
+3. **Rotate `SHOPIFY_API_SECRET`** — it was shared in plaintext during setup,
    and see the build-ARG note above. Rotate in the Dev Dashboard and update the
    Coolify env var.
+4. **Consider `GOOGLE_PAGESPEED_API_KEY`** — intentionally unset; the app uses
+   the keyless PageSpeed endpoint, which has a low shared daily cap. Only set a
+   key with the PageSpeed Insights API enabled: a 403 is not retryable, so a
+   blocked key is worse than none (see README).

@@ -5,7 +5,10 @@
 # Dev Dashboard), re-apply the [webhooks] block below afterwards — the CLI does
 # not generate the compliance subscription, and without it the mandatory privacy
 # webhooks are unregistered.
-name = "ImgPro"
+# `name` must match the Dev Dashboard app name, otherwise every `shopify app
+# deploy` silently renames the app there. The in-app UI brand is "ImgPro" (set
+# in app/components/ui.jsx) and is deliberately independent of this.
+name = "ImgPro Ai"
 client_id = "c25c46bfed12a499a2a08b7d5a0011e8"
 application_url = "https://imgproai.onkra.online"
 embedded = true

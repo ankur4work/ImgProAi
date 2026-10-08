@@ -20,9 +20,9 @@ functionality and the pricing model are carried over unchanged.
 | `SHOPIFY_API_KEY` / `SHOPIFY_API_SECRET` | ✅ set (ImgPro app credentials) |
 | `SHOPIFY_APP_URL` / `application_url` | ✅ `https://imgproai.onkra.online`, confirmed |
 | `client_id` in `shopify.app.toml` | ✅ set |
-| `OPENAI_API_KEY` | ⚠️ **not yet set for ImgPro.** Must be verified with a real completion **and** a real vision call against a Shopify CDN URL — an unfunded key authenticates but fails every caption (see below) |
+| `OPENAI_API_KEY` | ✅ set, and verified with a real `gpt-4o-mini` completion **and** a real vision call (not an auth check — an unfunded key authenticates but fails every caption, see below) |
 | `DATABASE_URL` | ✅ set in Coolify to the app's own new Postgres resource. The app cannot start without it: `PrismaSessionStorage` checks for the `Session` table at boot and the process exits if it can't reach the database |
-| `SHOPIFY_APP_HANDLE` | ⚠️ set to the likely value `imgpro`, **not verified.** Confirm against a real install URL — see below |
+| `SHOPIFY_APP_HANDLE` | ✅ `imgpro-ai` — confirmed from the app version tags Shopify generates (see below). **Not** `imgpro` |
 | `SUPPORT_EMAIL` | ✅ set in Coolify to `admin@swiftcart.live` (the shared support address the sibling apps use) |
 
 `DATABASE_URL` must point at a **new** Postgres database. Do not reuse
@@ -125,9 +125,21 @@ documented inline in `app/optimize.server.js`; all have working defaults.
 
 The handle is the path segment in
 `admin.shopify.com/store/<store>/charges/<handle>/pricing_plans`. Shopify
-derives it from the app name but **appends a numeric suffix on collision** —
-previous builds ended up as `optipix-3` and `imageboost-seo-1`. Read the real
-value off the Dashboard URL. A wrong handle makes every "Choose plan" CTA 404.
+derives it from the app name **at creation time** and never changes it
+afterwards, and it **appends a numeric suffix on collision** — previous builds
+ended up as `optipix-3` and `imageboost-seo-1`. A wrong handle makes every
+"Choose plan" CTA 404.
+
+For this app it is **`imgpro-ai`**, from the Dev Dashboard app name "ImgPro Ai"
+— *not* `imgpro`, and not derived from this repo or the `imgproai` DNS host.
+
+The cheap way to read it without installing: `shopify app versions list`.
+Shopify auto-names each version `<handle>-<n>`, so the tags are `imgpro-ai-1`,
+`imgpro-ai-3`, `imgpro-ai-4`. Note a version released with a `name` in
+`shopify.app.toml` that disagrees with the Dashboard gets tagged from the
+*toml* name instead — an early push here with `name = "ImgPro"` produced
+`imgpro-2`, which is exactly the misleading signal that makes a wrong handle
+easy to adopt. Keep `name` matching the Dashboard and the tags stay truthful.
 
 At runtime the app prefers the handle Shopify itself reports
 (`currentAppInstallation.app.handle`); this env var is the fallback used when
