@@ -43,7 +43,10 @@ const CANCEL_MUTATION = `#graphql
 // (currentAppInstallation.app.handle); this value is only the fallback for when
 // that query is unavailable — which is exactly when the pricing wall shows, so
 // it still has to be right.
-const FALLBACK_APP_HANDLE = process.env.SHOPIFY_APP_HANDLE || "imgpro";
+// The literal is "imgpro-ai", NOT "imgpro": Shopify derived the handle from the
+// Dev Dashboard app name "ImgPro Ai". Confirmed from the version tags Shopify
+// generates as <handle>-<n> (imgpro-ai-1, imgpro-ai-4).
+const FALLBACK_APP_HANDLE = process.env.SHOPIFY_APP_HANDLE || "imgpro-ai";
 
 // Dev-only plan override. Development stores cannot approve PAID managed-pricing
 // subscriptions (Shopify restriction), so paid tiers can't be tested by
