@@ -1,0 +1,1052 @@
+/* ImgPro — soft-elevated indigo design system.
+ *
+ * Every colour, radius, shadow and border the app paints is declared in the
+ * :root block below and nowhere else. Keeping the palette half in variables and
+ * half in literals scattered through the rules (or inline in components) means a
+ * rebrand turns into hunting hex codes across files and always missing a few.
+ * Re-theming is editing only this block.
+ *
+ * The visual language is ELEVATED and ROUNDED: depth comes from two soft shadow
+ * steps and generous 12px radii, with pill-shaped interactive controls. Surfaces
+ * float on a violet-tinted page wash rather than being divided by hairlines, and
+ * the accent is carried by solid indigo fills (active segments, CTAs) instead of
+ * tint-plus-underline. Containers get `--ip-sh-1`; only things that genuinely
+ * overlay the page (the sticky action bar) get `--ip-sh-2`.
+ *
+ * The ip-* primitives are consumed by the routes AND by PricingTiers.jsx /
+ * privacy.jsx, so the public pages and the embedded app cannot drift apart.
+ */
+
+:root {
+  /* ── Brand ─────────────────────────────────── */
+  --ip-accent: #4F46E5;          /* indigo-600  — primary action, active state */
+  --ip-accent-hover: #4338CA;    /* indigo-700                                 */
+  --ip-accent-active: #3730A3;   /* indigo-800                                 */
+  --ip-deep: #312E81;            /* indigo-900  — accent text on tint          */
+  --ip-accent-tint: #EEF2FF;     /* indigo-50   — hovered row / soft fill      */
+  --ip-accent-tint-2: #E0E7FF;   /* indigo-100  — meter track fill, tag bg     */
+  --ip-accent-border: #C7D2FE;   /* indigo-200                                 */
+
+  /* ── Ink & neutrals (violet-leaning, not slate) ── */
+  --ip-ink: #1E1B4B;             /* indigo-950 — headings, figures */
+  --ip-body: #3F3F56;            /* body copy                      */
+  --ip-muted: #6B6B85;           /* labels, meta                   */
+  --ip-faint: #A1A1BC;           /* placeholders                   */
+
+  /* ── Surfaces ─────────────────────────────── */
+  --ip-surface: #FFFFFF;
+  --ip-wash: #F7F7FB;            /* page wash — tinted, floats the cards */
+  --ip-wash-2: #EFEFF6;          /* control troughs, meter tracks        */
+  --ip-hover: #F7F7FD;
+
+  /* ── Borders ──────────────────────────────── */
+  --ip-border: #E6E6F0;          /* the soft edge             */
+  --ip-border-strong: #CFCFE0;   /* emphasis, dividers        */
+
+  /* ── Geometry ─────────────────────────────── */
+  --ip-r: 12px;                  /* the radius. Containers.            */
+  --ip-r-sm: 8px;                /* inputs, thumbs, chips              */
+  --ip-r-pill: 999px;            /* segments, tags, CTAs               */
+  --ip-hair: 1px solid var(--ip-border);
+
+  /* ── Elevation ────────────────────────────── */
+  --ip-sh-1: 0 1px 2px rgba(30, 27, 75, 0.05), 0 2px 6px rgba(30, 27, 75, 0.06);
+  --ip-sh-2: 0 2px 6px rgba(30, 27, 75, 0.08), 0 10px 24px rgba(30, 27, 75, 0.12);
+  --ip-ring: 0 0 0 3px rgba(79, 70, 229, 0.18);
+
+  /* ── Status ───────────────────────────────── */
+  --ip-ok: #059669;              /* emerald-600 */
+  --ip-ok-bg: #ECFDF5;
+  --ip-ok-border: #A7F3D0;
+  --ip-warn: #D97706;            /* amber-600 */
+  --ip-warn-bg: #FFFBEB;
+  --ip-warn-border: #FDE68A;
+  --ip-bad: #E11D48;             /* rose-600 */
+  --ip-bad-bg: #FFF1F2;
+  --ip-bad-border: #FECDD3;
+  --ip-info: #0284C7;            /* sky-600 — distinct from the indigo accent */
+  --ip-info-bg: #F0F9FF;
+  --ip-info-border: #BAE6FD;
+
+  /* ── Disabled state ───────────────────────── */
+  --ip-disabled-bg: #E6E6F0;
+  --ip-disabled-fg: #A1A1BC;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Polaris overrides — round and lift the platform components to match
+   ══════════════════════════════════════════════════════════════════════ */
+
+.Polaris-Button--variantPrimary {
+  background: var(--ip-accent) !important;
+  border-color: var(--ip-accent) !important;
+  box-shadow: var(--ip-sh-1) !important;
+  border-radius: var(--ip-r-sm) !important;
+}
+.Polaris-Button--variantPrimary:hover:not(:disabled) {
+  background: var(--ip-accent-hover) !important;
+  border-color: var(--ip-accent-hover) !important;
+}
+.Polaris-Button--variantPrimary:active:not(:disabled) {
+  background: var(--ip-accent-active) !important;
+  box-shadow: none !important;
+}
+/* A disabled button must LOOK disabled. The rule above sets the accent fill on
+   every primary button, which would otherwise override Polaris's own disabled
+   styling — leaving a button that cannot be clicked looking exactly like one
+   that can, so clicking it appears to do nothing. */
+.Polaris-Button--variantPrimary:disabled,
+.Polaris-Button--variantPrimary[aria-disabled="true"] {
+  background: var(--ip-disabled-bg) !important;
+  border-color: var(--ip-disabled-bg) !important;
+  color: var(--ip-disabled-fg) !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+.Polaris-Button--variantPrimary:disabled .Polaris-Text--root,
+.Polaris-Button--variantPrimary[aria-disabled="true"] .Polaris-Text--root {
+  color: inherit !important;
+}
+
+.Polaris-Link { color: var(--ip-accent) !important; }
+.Polaris-Link:hover { color: var(--ip-accent-hover) !important; }
+
+.Polaris-TextField__Input:focus {
+  border-color: var(--ip-accent) !important;
+  box-shadow: var(--ip-ring) !important;
+}
+
+.Polaris-Checkbox__Input:checked + .Polaris-Checkbox__Backdrop {
+  background: var(--ip-accent) !important;
+  border-color: var(--ip-accent) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Command bar — an elevated header card. The eyebrow is a pill chip
+   rather than a bare uppercase line, and there is no left accent rule:
+   the lift does the work the rule used to do.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r);
+  box-shadow: var(--ip-sh-1);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.ip-bar-main { min-width: 0; }
+.ip-bar-eyebrow {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ip-deep);
+  background: var(--ip-accent-tint);
+  border: 1px solid var(--ip-accent-border);
+  border-radius: var(--ip-r-pill);
+  padding: 3px 10px;
+  margin: 0 0 9px 0;
+}
+.ip-bar-title {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--ip-ink);
+  margin: 0;
+}
+.ip-bar-sub {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ip-muted);
+  margin: 5px 0 0 0;
+  max-width: 68ch;
+}
+.ip-bar-aside { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   KPI tiles — discrete floating tiles in a responsive grid, rather than
+   one joined rail cut by hairline dividers. Each figure owns its card.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-kpi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ip-kpi-cell {
+  min-width: 0;
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r);
+  box-shadow: var(--ip-sh-1);
+  padding: 14px 16px;
+}
+.ip-kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ip-muted);
+  margin: 0 0 6px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ip-kpi-value {
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ip-ink);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ip-kpi-value--ok { color: var(--ip-ok); }
+.ip-kpi-value--bad { color: var(--ip-bad); }
+.ip-kpi-note {
+  font-size: 11px;
+  color: var(--ip-muted);
+  margin: 4px 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* A word-valued KPI ("Growth", "On") would read as a broken headline at the
+   figure size, so it gets the tag treatment and keeps the row on one baseline. */
+.ip-kpi-tagline { min-height: 26px; display: flex; align-items: center; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Segmented control — a pill track with a solid indigo thumb. Replaces
+   the <Select> filter dropdowns.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--ip-wash-2);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-r-pill);
+  padding: 3px;
+}
+.ip-seg-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ip-body);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1;
+  padding: 7px 14px;
+  border-radius: var(--ip-r-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+}
+.ip-seg-btn:hover:not(:disabled):not([aria-pressed="true"]) {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ip-ink);
+}
+.ip-seg-btn[aria-pressed="true"] {
+  background: var(--ip-accent);
+  color: #fff;
+  font-weight: 650;
+  box-shadow: var(--ip-sh-1);
+}
+.ip-seg-btn:disabled { color: var(--ip-disabled-fg); cursor: not-allowed; }
+.ip-seg-count {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+  margin-left: 5px;
+}
+
+/* A labelled control group: micro-label above the control, not beside it. */
+.ip-field { display: inline-flex; flex-direction: column; gap: 6px; }
+.ip-field-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ip-muted);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Panel — elevated rounded container, replaces Polaris <Card> where the
+   card's own padding/elevation would fight the dense table inside it.
+   The head is white with a sentence-case title, not a grey uppercase bar.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-panel {
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r);
+  box-shadow: var(--ip-sh-1);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.ip-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: var(--ip-surface);
+  border-bottom: var(--ip-hair);
+}
+.ip-panel-title {
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ip-ink);
+  margin: 0;
+}
+.ip-panel-note { font-size: 12px; color: var(--ip-muted); margin: 0; }
+.ip-panel-body { padding: 18px; }
+.ip-panel-foot {
+  padding: 12px 18px;
+  background: var(--ip-wash);
+  border-top: var(--ip-hair);
+  font-size: 12px;
+  color: var(--ip-muted);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Dense table — the core of the layout. Products, alt-text rows, pages
+   and format breakdowns are all rows in a grid, not stacked cards.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-table { --ip-cols: 1fr; }
+.ip-tr {
+  display: grid;
+  grid-template-columns: var(--ip-cols);
+  align-items: center;
+  gap: 12px;
+  padding: 11px 18px;
+  border-bottom: var(--ip-hair);
+  min-width: 0;
+}
+.ip-tr:last-child { border-bottom: 0; }
+.ip-thead {
+  background: var(--ip-surface);
+  border-bottom: 1px solid var(--ip-border-strong);
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+.ip-th {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ip-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ip-tbody-row { background: var(--ip-surface); transition: background 0.14s ease; }
+.ip-tbody-row:hover { background: var(--ip-hover); }
+.ip-tbody-row--selected { background: var(--ip-accent-tint); }
+.ip-tbody-row--active { box-shadow: inset 3px 0 0 var(--ip-accent); }
+
+.ip-td { min-width: 0; font-size: 13px; color: var(--ip-body); }
+.ip-td--num { font-variant-numeric: tabular-nums; text-align: right; }
+.ip-td--right { display: flex; justify-content: flex-end; }
+.ip-td-strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ip-ink);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ip-td-meta {
+  font-size: 11px;
+  color: var(--ip-muted);
+  margin: 2px 0 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ip-td-ok { color: var(--ip-ok); font-weight: 600; }
+
+/* Column templates. Declared here rather than inline so the header row and the
+   body rows can never disagree about how many columns there are. */
+.ip-table--products {
+  --ip-cols: 26px 36px minmax(0, 1fr) 62px 86px 104px 132px 120px;
+}
+.ip-table--alt {
+  --ip-cols: 26px 44px minmax(0, 1.1fr) minmax(0, 1.4fr) 64px 104px;
+}
+.ip-table--pages {
+  --ip-cols: minmax(0, 1fr) 60px 84px 84px 90px 92px;
+}
+.ip-table--formats {
+  --ip-cols: 72px 72px minmax(120px, 1fr) 92px 60px;
+}
+.ip-table--vitals {
+  --ip-cols: minmax(0, 1fr) 110px 150px;
+}
+
+/* Narrow viewports: drop the columns that are nice-to-have before the ones that
+   are load-bearing. `display:none` on a grid child removes it from the flow, so
+   the template is shortened to match in each step. */
+@media (max-width: 1040px) {
+  .ip-table--products { --ip-cols: 26px 36px minmax(0, 1fr) 86px 132px 120px; }
+  .ip-table--products .ip-col-images,
+  .ip-table--products .ip-col-saved { display: none; }
+  .ip-table--pages { --ip-cols: minmax(0, 1fr) 60px 90px 92px; }
+  .ip-table--pages .ip-col-before,
+  .ip-table--pages .ip-col-after { display: none; }
+}
+@media (max-width: 780px) {
+  .ip-table--products { --ip-cols: 26px minmax(0, 1fr) 132px; }
+  .ip-table--products .ip-col-thumb,
+  .ip-table--products .ip-col-size,
+  .ip-table--products .ip-col-action { display: none; }
+  .ip-table--alt { --ip-cols: 26px minmax(0, 1fr) minmax(0, 1.2fr) 104px; }
+  .ip-table--alt .ip-col-thumb,
+  .ip-table--alt .ip-col-score { display: none; }
+}
+
+/* Inline editable cell. A Polaris TextField carries a label slot, help-text
+   slot and its own vertical rhythm, all of which fight a 44px table row — this
+   is the same control stripped to the field itself so the caption can be edited
+   in place rather than in a panel below the list. */
+.ip-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ip-ink);
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r-sm);
+  padding: 7px 10px;
+  resize: vertical;
+  min-height: 42px;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.ip-input::placeholder { color: var(--ip-faint); }
+.ip-input:focus {
+  outline: none;
+  border-color: var(--ip-accent);
+  box-shadow: var(--ip-ring);
+}
+.ip-input:disabled {
+  background: var(--ip-wash-2);
+  color: var(--ip-muted);
+  cursor: not-allowed;
+}
+
+/* Native select, restyled. A segmented control is the right shape for four
+   fixed choices; it is the wrong shape for "pick one of 500 product pages", so
+   that one stays a select — just not a Polaris-chromed one. */
+.ip-select {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--ip-ink);
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r-sm);
+  padding: 8px 30px 8px 12px;
+  min-width: 220px;
+  max-width: 100%;
+  cursor: pointer;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+  /* Caret drawn as a background gradient pair so no SVG asset or icon font is
+     needed — the strict-CSP public pages can't fetch one anyway. */
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ip-muted) 50%),
+    linear-gradient(135deg, var(--ip-muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.ip-select:focus {
+  outline: none;
+  border-color: var(--ip-accent);
+  box-shadow: var(--ip-ring);
+}
+.ip-select:disabled { background-color: var(--ip-wash-2); color: var(--ip-muted); cursor: not-allowed; }
+
+/* Row thumbnail — rounded, soft-edged, no Polaris Thumbnail chrome. */
+.ip-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ip-r-sm);
+  border: var(--ip-hair);
+  object-fit: cover;
+  display: block;
+  background: var(--ip-wash-2);
+}
+.ip-thumb--lg { width: 44px; height: 44px; border-radius: 10px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Meter — a rounded inline bar. Used in table rows where a Polaris
+   ProgressBar is too tall and carries its own margins.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-meter { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ip-meter-track {
+  flex: 1 1 auto;
+  height: 6px;
+  min-width: 36px;
+  border-radius: var(--ip-r-pill);
+  background: var(--ip-wash-2);
+  overflow: hidden;
+}
+.ip-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--ip-r-pill);
+  background: var(--ip-accent);
+  transition: width 0.25s ease;
+}
+.ip-meter-fill--ok { background: var(--ip-ok); }
+.ip-meter-fill--warn { background: var(--ip-warn); }
+.ip-meter-fill--bad { background: var(--ip-bad); }
+.ip-meter-value {
+  font-size: 11px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--ip-body);
+  width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* A wider, labelled meter for the quota rail in the command bar area. */
+.ip-quota { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ip-quota .ip-meter-track { height: 8px; min-width: 180px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Tags & dots — fully pill-shaped. Used alongside (not instead of)
+   Polaris Badge: Badge stays for platform-standard statuses.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1;
+  padding: 5px 10px;
+  border-radius: var(--ip-r-pill);
+  border: 1px solid var(--ip-border);
+  background: var(--ip-wash-2);
+  color: var(--ip-body);
+  white-space: nowrap;
+}
+.ip-tag--brand { background: var(--ip-accent-tint); color: var(--ip-deep); border-color: var(--ip-accent-border); }
+.ip-tag--ok { background: var(--ip-ok-bg); color: var(--ip-ok); border-color: var(--ip-ok-border); }
+.ip-tag--warn { background: var(--ip-warn-bg); color: var(--ip-warn); border-color: var(--ip-warn-border); }
+.ip-tag--bad { background: var(--ip-bad-bg); color: var(--ip-bad); border-color: var(--ip-bad-border); }
+.ip-tag--info { background: var(--ip-info-bg); color: var(--ip-info); border-color: var(--ip-info-border); }
+
+.ip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--ip-border-strong);
+  display: inline-block;
+}
+.ip-dot--ok { background: var(--ip-ok); }
+.ip-dot--warn { background: var(--ip-warn); }
+.ip-dot--bad { background: var(--ip-bad); }
+.ip-dot--info { background: var(--ip-info); }
+.ip-dot--brand { background: var(--ip-accent); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Image chips — per-image run state. Replaces a row of Polaris
+   Thumbnails in Boxes; these are small rounded squares in a tight wrap
+   grid so a 25-image product is a glanceable block rather than a scroll.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ip-chip {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--ip-r-sm);
+  border: var(--ip-hair);
+  background: var(--ip-wash-2);
+  overflow: hidden;
+}
+.ip-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ip-chip--done { border-color: var(--ip-ok); }
+.ip-chip--failed { border-color: var(--ip-bad); }
+.ip-chip--working { border-color: var(--ip-accent); }
+/* A bottom rule rather than an overlay: the merchant can still see which
+   image it is while the state is unambiguous at 32px. */
+.ip-chip::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: transparent;
+}
+.ip-chip--done::after { background: var(--ip-ok); }
+.ip-chip--failed::after { background: var(--ip-bad); }
+.ip-chip--working::after {
+  background: var(--ip-accent);
+  animation: ip-pulse 1s ease-in-out infinite;
+}
+.ip-chip--skipped::after { background: var(--ip-border-strong); }
+@keyframes ip-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Run rail — the live optimization strip. An elevated card with a tinted
+   header, no left accent rule.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-run {
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r);
+  box-shadow: var(--ip-sh-1);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.ip-run-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 13px 18px;
+  background: var(--ip-accent-tint);
+  border-bottom: 1px solid var(--ip-accent-border);
+}
+.ip-run-title { font-size: 13px; font-weight: 650; color: var(--ip-deep); margin: 0; }
+.ip-run-pct {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ip-deep);
+}
+.ip-run-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+.ip-run-line { font-size: 12px; color: var(--ip-muted); margin: 0; }
+.ip-run-line strong { color: var(--ip-ink); font-weight: 650; }
+.ip-run-log { display: flex; flex-direction: column; gap: 3px; }
+.ip-run-log-item {
+  font-size: 11px;
+  color: var(--ip-muted);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ip-run-log-item::before { content: "✓ "; color: var(--ip-ok); font-weight: 700; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Sticky bulk-action bar — replaces the inline "Optimize Selected" button
+   that scrolled away with the toolbar. This genuinely overlays the page,
+   so it is the one place that earns --ip-sh-2.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-actionbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--ip-ink);
+  border-radius: var(--ip-r);
+  box-shadow: var(--ip-sh-2);
+  padding: 12px 16px;
+  margin-top: 16px;
+}
+.ip-actionbar-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.ip-actionbar-note { font-size: 12px; color: var(--ip-accent-border); margin: 2px 0 0 0; }
+.ip-actionbar-actions { display: flex; align-items: center; gap: 8px; }
+/* The bar is dark, so the accent button needs to lift off it rather than sink
+   in — and the plain "clear" control has to be legible on dark too. */
+.ip-actionbar .Polaris-Button--variantPrimary {
+  background: var(--ip-accent) !important;
+  border-color: var(--ip-accent) !important;
+}
+.ip-actionbar .Polaris-Button--variantPrimary:hover:not(:disabled) {
+  background: #6366F1 !important;
+  border-color: #6366F1 !important;
+}
+.ip-btn-ghost {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--ip-r-pill);
+  color: #E0E7FF;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+.ip-btn-ghost:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Expanded row detail — inline, inside the table, instead of a modal or
+   a separate card per product.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-expand {
+  background: var(--ip-wash);
+  border-bottom: var(--ip-hair);
+  padding: 14px 18px 16px 60px;
+}
+.ip-expand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 10px 18px;
+  margin-bottom: 12px;
+}
+.ip-expand-k {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ip-muted);
+  margin: 0 0 3px 0;
+}
+.ip-expand-v {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ip-ink);
+  margin: 0;
+}
+.ip-disclose {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--ip-accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ip-disclose:hover { color: var(--ip-accent-hover); }
+.ip-disclose-caret { font-size: 9px; line-height: 1; }
+
+@media (max-width: 780px) {
+  .ip-expand { padding-left: 18px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Launchpad list — the home page tool index. A keyed list with status
+   dots and tinted monogram tiles, not a grid of icon cards.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-launch { display: flex; flex-direction: column; }
+.ip-launch-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: var(--ip-hair);
+  background: var(--ip-surface);
+  transition: background 0.14s ease;
+}
+.ip-launch-row:last-child { border-bottom: 0; }
+.ip-launch-row:hover { background: var(--ip-hover); }
+/* Tinted monogram tile — a soft indigo square, no border, no gradient. */
+.ip-launch-glyph {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 0;
+  background: var(--ip-accent-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ip-deep);
+}
+.ip-launch-glyph--locked { color: var(--ip-faint); background: var(--ip-wash-2); }
+.ip-launch-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 3px 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ip-ink);
+}
+.ip-launch-desc { font-size: 12px; color: var(--ip-muted); margin: 0; }
+
+@media (max-width: 700px) {
+  .ip-launch-row { grid-template-columns: 34px minmax(0, 1fr); }
+  .ip-launch-row > :last-child { grid-column: 1 / -1; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Insight list — replaces a stack of full-width Polaris Banners, which
+   read as four errors rather than four notes.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-notes { display: flex; flex-direction: column; }
+.ip-note {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 13px 18px;
+  border-bottom: var(--ip-hair);
+}
+.ip-note:last-child { border-bottom: 0; }
+.ip-note-dot { margin-top: 5px; }
+.ip-note-title { font-size: 13px; font-weight: 650; color: var(--ip-ink); margin: 0 0 3px 0; }
+.ip-note-body { font-size: 12px; line-height: 1.55; color: var(--ip-body); margin: 0; }
+
+@media (max-width: 700px) {
+  .ip-note { grid-template-columns: 8px minmax(0, 1fr); }
+  .ip-note > :last-child { grid-column: 2; margin-top: 6px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Vitals grid — Core Web Vitals cells. Discrete floating cells with a
+   rating dot, instead of a hairline-gap mosaic.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-vitals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.ip-vital {
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r);
+  box-shadow: var(--ip-sh-1);
+  padding: 14px 16px;
+}
+.ip-vital-k {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ip-muted);
+  margin: 0 0 6px 0;
+}
+.ip-vital-v {
+  font-size: 20px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  color: var(--ip-ink);
+  margin: 0;
+}
+.ip-vital-r { font-size: 11px; margin: 4px 0 0 0; color: var(--ip-muted); }
+
+/* Score ring replacement: a big figure with a rating tag beside it. */
+.ip-score { display: flex; align-items: baseline; gap: 10px; }
+.ip-score-n {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ip-ink);
+}
+.ip-score-d { font-size: 14px; color: var(--ip-muted); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Empty / loading states
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-empty { padding: 48px 24px; text-align: center; }
+.ip-empty-title { font-size: 14px; font-weight: 650; color: var(--ip-ink); margin: 0 0 5px 0; }
+.ip-empty-body { font-size: 13px; color: var(--ip-muted); margin: 0 auto; max-width: 46ch; }
+
+/* Skeleton rows, so the table's shape is visible while /api/catalog answers
+   instead of a lone centred spinner that gives no sense of what's coming. */
+.ip-skel {
+  height: 11px;
+  border-radius: var(--ip-r-pill);
+  background: linear-gradient(90deg, var(--ip-wash-2) 0%, #E4E4F2 50%, var(--ip-wash-2) 100%);
+  background-size: 200% 100%;
+  animation: ip-shimmer 1.3s linear infinite;
+}
+@keyframes ip-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Pricing matrix — one elevated comparison table instead of four
+   floating cards with the popular one lifted out of the row.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-page {
+  min-height: 100vh;
+  background: var(--ip-wash);
+  padding: 48px 24px;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ip-body);
+}
+.ip-page-inner { max-width: 1000px; margin: 0 auto; }
+.ip-page-eyebrow {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ip-deep);
+  background: var(--ip-accent-tint);
+  border: 1px solid var(--ip-accent-border);
+  border-radius: var(--ip-r-pill);
+  padding: 4px 12px;
+  margin: 0 0 16px 0;
+}
+.ip-page-h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--ip-ink);
+  margin: 0 0 8px 0;
+}
+.ip-page-lead { font-size: 15px; line-height: 1.6; color: var(--ip-muted); margin: 0 0 28px 0; max-width: 62ch; }
+
+.ip-matrix-wrap {
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r);
+  box-shadow: var(--ip-sh-1);
+  overflow-x: auto;
+}
+.ip-matrix { width: 100%; border-collapse: collapse; min-width: 680px; }
+.ip-matrix th, .ip-matrix td {
+  padding: 13px 16px;
+  text-align: left;
+  border-bottom: var(--ip-hair);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.ip-matrix tr:last-child th, .ip-matrix tr:last-child td { border-bottom: 0; }
+.ip-matrix thead th { background: var(--ip-surface); vertical-align: top; }
+.ip-matrix tbody th {
+  font-weight: 550;
+  color: var(--ip-body);
+  width: 34%;
+}
+.ip-matrix td { text-align: center; font-variant-numeric: tabular-nums; }
+/* The recommended column is marked by a tinted stripe and a top rule, not by
+   being physically lifted out of the table. */
+.ip-matrix .ip-col-pop { background: var(--ip-accent-tint); }
+.ip-matrix thead .ip-col-pop { box-shadow: inset 0 3px 0 var(--ip-accent); }
+.ip-tier-name { font-size: 15px; font-weight: 700; color: var(--ip-ink); margin: 0 0 2px 0; }
+.ip-tier-tag { font-size: 11px; color: var(--ip-muted); margin: 0 0 12px 0; }
+.ip-tier-cta {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  font-size: 13px;
+  font-weight: 650;
+  padding: 9px 14px;
+  border-radius: var(--ip-r-pill);
+  border: 1px solid var(--ip-border-strong);
+  background: var(--ip-surface);
+  color: var(--ip-body);
+  transition: background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.ip-tier-cta:hover { background: var(--ip-wash-2); }
+.ip-tier-cta--primary {
+  background: var(--ip-accent);
+  border-color: var(--ip-accent);
+  color: #fff;
+  box-shadow: var(--ip-sh-1);
+}
+.ip-tier-cta--primary:hover { background: var(--ip-accent-hover); border-color: var(--ip-accent-hover); }
+.ip-yes { color: var(--ip-ok); font-weight: 700; }
+.ip-no { color: var(--ip-faint); }
+.ip-matrix-foot { font-size: 12px; color: var(--ip-muted); margin: 18px 0 0 0; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Prose — the public privacy page and the marketing landing page
+   ══════════════════════════════════════════════════════════════════════ */
+
+.ip-prose {
+  background: var(--ip-surface);
+  border: var(--ip-hair);
+  border-radius: var(--ip-r);
+  box-shadow: var(--ip-sh-1);
+  padding: 40px 44px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.ip-prose h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ip-ink);
+  margin: 0 0 6px 0;
+}
+.ip-prose h2 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--ip-ink);
+  margin: 28px 0 8px 0;
+  padding-top: 16px;
+  border-top: var(--ip-hair);
+}
+.ip-prose p { font-size: 15px; line-height: 1.65; margin: 0 0 13px 0; }
+.ip-prose ul { margin: 0 0 13px 0; padding-left: 20px; }
+.ip-prose li { font-size: 15px; line-height: 1.65; margin-bottom: 9px; }
+.ip-prose a { color: var(--ip-accent); }
+.ip-prose code {
+  background: var(--ip-wash-2);
+  border: var(--ip-hair);
+  padding: 2px 6px;
+  border-radius: var(--ip-r-sm);
+  font-size: 13px;
+}
+.ip-prose-meta { font-size: 13px; color: var(--ip-muted); margin: 0 0 24px 0; }
+
+@media (max-width: 640px) {
+  .ip-prose { padding: 28px 22px; }
+  .ip-page { padding: 32px 16px; }
+  .ip-page-h1 { font-size: 26px; }
+}
