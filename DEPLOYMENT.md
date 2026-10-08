@@ -58,15 +58,24 @@ stored on the database resource in Coolify. None of these live in the repo.
 
 ## Verified on this deploy
 
+All checks below are against the real public URL — real DNS, real TLS, no
+client-side overrides.
+
 | Check | Result |
 |---|---|
 | Docker build | ✅ `npm ci` → `prisma generate` → `react-router build` all clean |
 | Migration | ✅ `0001_init` applied |
 | Container | ✅ `running:healthy`, `react-router-serve` on `0.0.0.0:3000` |
+| DNS | ✅ `imgproai.onkra.online` → `173.212.233.194` |
+| TLS | ✅ Let's Encrypt, `CN=imgproai.onkra.online`, chain verifies, expires 2027-01-06 |
 | `GET /healthz` | ✅ 200 `ok` |
-| `GET /` and `/privacy` | ✅ 200, ImgPro branding, zero "PixelPro" strings |
-| Theme shipped | ✅ `/assets/root-sFmkb1DU.css` serves indigo `#4F46E5`, `--ip-sh-1`, `--ip-r: 12px`; no teal `#0D9488` |
+| `GET /` and `/privacy` | ✅ 200, ImgPro branding, zero "PixelPro" strings, no stale `imgpro.` host |
+| Theme shipped | ✅ `/assets/root-sFmkb1DU.css` (20.8 KB) serves indigo `#4F46E5`, `--ip-sh-1`, `--ip-r: 12px`; no teal `#0D9488` |
 | `/app`, `/auth/login` | ✅ 410 without a Shopify session — identical to the working sibling app, this is the framework's response to direct non-embedded access |
+
+Not yet exercised, because they need a real store session and the two pending
+secrets: the five embedded feature pages (dashboard, product optimization, alt
+text, page-speed reports, billing) and the webhook endpoints.
 
 ## Still required before the app works end to end
 
